@@ -17,7 +17,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        configuration: [Release, Debug]
+        configuration: [Release]
     
     steps:
     - name: Checkout OBS Studio repository
@@ -26,7 +26,15 @@ jobs:
       with:
         repository: obsproject/obs-studio
         path: obs-studio
-
+    - name: Install Windows SDK using PowerShell
+      shell: powershell
+      run: |
+        $installerUrl = "https://go.microsoft.com/fwlink/?linkid=2120843"
+        $installerPath = "$env:TEMP\winsdksetup.exe"
+        Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
+        Start-Process -FilePath $installerPath -ArgumentList "/quiet /norestart" -Wait
+        $windowsSdkPath = "C:\Program Files (x86)\Windows Kits\10\bin\x64"
+        [Environment]::SetEnvironmentVariable("Path", $env:Path + ";" + $windowsSdkPath, [EnvironmentVariableTarget]::Machine)
     - name: Checkout Media Foundation repository
       run: |
         git clone https://github.com/microsoft/media-foundation.git media-foundation
