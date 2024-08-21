@@ -31,13 +31,19 @@ jobs:
         cd media-foundation
         git submodule update --init --recursive
 
-    - name: Modify OBS Studio to use Media Foundation
+    - name: Checkout OBS Studio repository
+      uses: actions/checkout@v2
+      with:
+        repository: obsproject/obs-studio
+        path: obs-studio
+
+    - name: Replace DirectShow with Media Foundation
       run: |
-        cd obs-studio
-        # Example modification: Replace DirectShow with Media Foundation in relevant source files
-        sed -i 's/DirectShow/MediaFoundation/g' ./plugins/video_capture/windows/win-capture.cpp
-        sed -i 's/DirectShowFilter/MediaFoundationFilter/g' ./plugins/video_capture/windows/win-capture.cpp
-        # Additional modifications if needed
+        # Replace all occurrences of DirectShow with Media Foundation in .cpp, .c, and .h files
+        Get-ChildItem -Path obs-studio -Recurse -Include *.cpp, *.c, *.h |
+        ForEach-Object {
+          (Get-Content $_.FullName) -replace 'DirectShow', 'MediaFoundation' | Set-Content $_.FullName
+        }
 
     - name: Set OBS Version to prevent CMake errors
       run: |
@@ -48,13 +54,6 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1
       with:
         arch: x64
-
-    - name: Install dependencies
-      run: |
-        choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"'
-        choco install git
-        choco install ninja
-        choco install 7zip
 
     - name: Configure OBS Studio with Media Foundation support
       run: |
