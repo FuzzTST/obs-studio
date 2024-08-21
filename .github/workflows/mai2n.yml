@@ -70,7 +70,7 @@ jobs:
     - name: Set OBS Version to prevent CMake errors
       run: |
         cd /a/obs-studio/obs-studio/obs-studio/
-        cmake --preset windows-x64
+      #cmake --preset windows-x64
       #echo 'set(OBS_CMAKE_VERSION "3.0.0")' >> CMakeLists.txt
        
 
