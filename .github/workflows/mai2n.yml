@@ -48,11 +48,11 @@ jobs:
     - name: Install dependencies (Visual Studio and other tools)
       run: |
         choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional"
-        
     - name: Configure OBS Studio with CMake Presets
       run: |
        cd /a/obs-studio/obs-studio/obs-studio
-       cmake --preset windows-x64
+       git submodule update --init --recursive
+      #cmake --preset windows-x64
     - name: Checkout OBS Studio repository
       uses: actions/checkout@v2
       with:
