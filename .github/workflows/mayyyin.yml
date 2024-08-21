@@ -99,4 +99,3 @@ jobs:
       with:
         name: obs-build-${{ matrix.configuration }}
         path: obs-studio/build/bin/Release/
-        
