@@ -45,7 +45,6 @@ jobs:
        cd /
        cd a
        cd obs-studio
-       ls -la
        cmake --preset windows-x64
     - name: Checkout OBS Studio repository
       uses: actions/checkout@v2
