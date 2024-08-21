@@ -31,7 +31,6 @@ jobs:
         choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"'
         choco install git
         choco install ninja
-        choco install 7zip
 
     - name: Checkout OBS Studio repository
       uses: actions/checkout@v2
@@ -41,7 +40,7 @@ jobs:
 
     - name: Checkout Media Foundation repository
       run: |
-        git clone https://github.com/microsoft/media-foundation.git media-foundation
+        git clone --depth=1 https://github.com/microsoft/media-foundation.git media-foundation
         cd media-foundation
         git submodule update --init --recursive
 
@@ -66,8 +65,8 @@ jobs:
         if ($winCapturePath -ne $null) {
           $path = $winCapturePath.FullName
           Write-Host "Modifying: $path"
-          sed -i 's/DirectShow/MediaFoundation/g' $path
-          sed -i 's/DirectShowFilter/MediaFoundationFilter/g' $path
+          (Get-Content $path) -replace 'DirectShow', 'MediaFoundation' | Set-Content $path
+          (Get-Content $path) -replace 'DirectShowFilter', 'MediaFoundationFilter' | Set-Content $path
         } else {
           Write-Host "Error: win-capture.cpp file not found"
           exit 1
@@ -100,3 +99,4 @@ jobs:
       with:
         name: obs-build-${{ matrix.configuration }}
         path: obs-studio/build/bin/Release/
+        
