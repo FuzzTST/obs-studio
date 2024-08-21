@@ -68,18 +68,17 @@ jobs:
       with:
         arch: x64
 
-    - name: Configure OBS Studio with Media Foundation support
+    - name: Configure OBS Studio with Media Foundation support for Windows 64-bit
       run: |
-        cd obs-studio
-        mkdir build
-        cd build
-        cmake -G "Ninja" -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DENABLE_MEDIA_FOUNDATION=ON -DBUILD_WIN=ON ..
-
-    - name: Build OBS Studio
-      run: |
-        cd obs-studio/build
-        ninja
-
+       cd obs-studio
+       if not exist build mkdir build
+       cd build
+       cmake -G "Ninja" ^
+          -A x64 ^
+          -DCMAKE_BUILD_TYPE="${{ matrix.configuration }}" ^
+          -DENABLE_MEDIA_FOUNDATION=ON ^
+          -DBUILD_WIN=ON ..
+    
     - name: Archive build artifacts
       uses: actions/upload-artifact@v2
       with:
