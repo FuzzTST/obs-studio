@@ -45,6 +45,9 @@ jobs:
 
     - name: Replace DirectShow with Media Foundatio
       run: |
+              cd /
+              pwd
+              cd obs-studio
               Get-ChildItem -Path obs-studio/plugins -Recurse -Include *.cpp, *.c, *.h |
               ForEach-Object {
                 (Get-Content $_.FullName) -replace 'DirectShow', 'MediaFoundation' | Set-Content $_.FullName
