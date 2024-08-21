@@ -16,7 +16,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        configuration: [Release, Debug]
+        configuration: [Release]
 
     steps:
     - name: Install Chocolatey
@@ -29,7 +29,7 @@ jobs:
     - name: Install dependencies using Chocolatey
       run: |
         choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"'
-        choco install git
+        choco install git --params "/GitAndUnixToolsOnPath /NoShellIntegration /NoAutoCrlf"
         choco install ninja
 
     - name: Checkout OBS Studio repository
@@ -38,38 +38,12 @@ jobs:
         repository: obsproject/obs-studio
         path: obs-studio
 
-    - name: Checkout Media Foundation repository
+    - name: Replace DirectShow with Media Foundation
       run: |
-        git clone --depth=1 https://github.com/microsoft/media-foundation.git media-foundation
-        cd media-foundation
-        git submodule update --init --recursive
-
-    - name: Verify structure and locate win-capture.cpp
-      run: |
-        cd obs-studio
-        if (-not (Test-Path './plugins/video_capture/windows/win-capture.cpp')) {
-          Write-Host "win-capture.cpp not found. Searching in the repository..."
-          $result = Get-ChildItem -Recurse -Filter 'win-capture.cpp' | Select-Object -First 1
-          if ($result -eq $null) {
-            Write-Host "Error: win-capture.cpp not found."
-            exit 1
-          } else {
-            Write-Host "win-capture.cpp found at: $($result.FullName)"
-          }
-        }
-
-    - name: Modify OBS Studio to use Media Foundation
-      run: |
-        cd obs-studio
-        $winCapturePath = Get-ChildItem -Recurse -Filter 'win-capture.cpp' | Select-Object -First 1
-        if ($winCapturePath -ne $null) {
-          $path = $winCapturePath.FullName
-          Write-Host "Modifying: $path"
-          (Get-Content $path) -replace 'DirectShow', 'MediaFoundation' | Set-Content $path
-          (Get-Content $path) -replace 'DirectShowFilter', 'MediaFoundationFilter' | Set-Content $path
-        } else {
-          Write-Host "Error: win-capture.cpp file not found"
-          exit 1
+        # Replace all occurrences of DirectShow with Media Foundation in .cpp, .c, and .h files
+        Get-ChildItem -Path obs-studio -Recurse -Include *.cpp, *.c, *.h |
+        ForEach-Object {
+          (Get-Content $_.FullName) -replace 'DirectShow', 'MediaFoundation' | Set-Content $_.FullName
         }
 
     - name: Set OBS Version to prevent CMake errors
