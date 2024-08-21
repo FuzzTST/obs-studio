@@ -1,0 +1,96 @@
+name: Build OBS Studio with Media Foundation on Windows
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build OBS Studio with Media Foundation
+    
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        configuration: [Release]
+    
+    steps:
+    - name: Checkout OBS Studio repositor
+      uses: actions/checkout@v2
+      with:
+        repository: obsproject/obs-studio
+        path: obs-studio
+    - name: Install Windows SDK using PowerShell
+      shell: powershell
+      run: |
+        choco install ninja
+        $installerUrl = "https://go.microsoft.com/fwlink/?linkid=2120843"
+        $installerPath = "$env:TEMP\winsdksetup.exe"
+        Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
+        Start-Process -FilePath $installerPath -ArgumentList "/quiet /norestart" -Wait
+        $windowsSdkPath = "C:\Program Files (x86)\Windows Kits\10\bin\x64"
+        [Environment]::SetEnvironmentVariable("Path", $env:Path + ";" + $windowsSdkPath, [EnvironmentVariableTarget]::Machine)
+    - name: Checkout Media Foundation repository
+      run: |
+        git clone https://github.com/microsoft/media-foundation.git media-foundation
+        cd media-foundation
+        git submodule update --init --recursive
+    - name: Set up CMake
+      uses: jwlawson/actions-setup-cmake@v1
+      with:
+        cmake-version: '3.22.1'  # Zaktualizuj wersję CMake w zależności od swoich potrzeb.
+
+    - name: Install dependencies (Visual Studio and other tools)
+      run: |
+        choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional"
+    - name: Configure OBS Studio with CMake Presets
+      run: |
+       cd /a/obs-studio/obs-studio/obs-studio
+       git submodule update --init --recursive
+      #cmake --preset windows-x64
+    - name: Checkout OBS Studio repository
+      uses: actions/checkout@v2
+      with:
+        repository: obsproject/obs-studio
+        path: obs-studio
+
+    - name: Replace DirectShow with Media Foundation
+      run: |
+        # Replace all occurrences of DirectShow with Media Foundation in .cpp, .c, and .h files
+        Get-ChildItem -Path obs-studio -Recurse -Include *.cpp, *.c, *.h |
+        ForEach-Object {
+          (Get-Content $_.FullName) -replace 'DirectShow', 'MediaFoundation' | Set-Content $_.FullName
+        }
+
+    - name: Set OBS Version to prevent CMake errors
+      run: |
+        cd obs-studio
+      #echo 'set(OBS_CMAKE_VERSION "3.0.0")' >> CMakeLists.txt
+
+    - name: Set up MSVC (Visual Studio 2019)
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Configure OBS Studio with Media Foundation support for Windows 64-bit
+      run: |
+       
+       mkdir /a/obs-studio/obs-studio/obs-studio/build
+       cd /a/obs-studio/obs-studio/obs-studio/build
+       cmake -G "Ninja" ^
+          -A x64 ^
+          -DCMAKE_BUILD_TYPE="${{ matrix.configuration }}" ^
+          -DENABLE_MEDIA_FOUNDATION=ON ^
+          -DBUILD_WIN=ON ..
+    
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: obs-build-${{ matrix.configuration }}
+        path: /a/obs-studio/obs-studio/obs-studio/build/bin/Release/
+        
