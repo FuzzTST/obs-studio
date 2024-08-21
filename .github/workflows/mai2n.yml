@@ -28,6 +28,7 @@ jobs:
     - name: Install Windows SDK using PowerShell
       shell: powershell
       run: |
+        choco install ninja
         $installerUrl = "https://go.microsoft.com/fwlink/?linkid=2120843"
         $installerPath = "$env:TEMP\winsdksetup.exe"
         Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
@@ -39,7 +40,15 @@ jobs:
         git clone https://github.com/microsoft/media-foundation.git media-foundation
         cd media-foundation
         git submodule update --init --recursive
+    - name: Set up CMake
+      uses: jwlawson/actions-setup-cmake@v1
+      with:
+        cmake-version: '3.22.1'  # Zaktualizuj wersję CMake w zależności od swoich potrzeb.
 
+    - name: Install dependencies (Visual Studio and other tools)
+      run: |
+        choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional"
+        
     - name: Configure OBS Studio with CMake Presets
       run: |
        cd /a/obs-studio/obs-studio/obs-studio
