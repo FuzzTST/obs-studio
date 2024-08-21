@@ -43,21 +43,15 @@ jobs:
         [Environment]::SetEnvironmentVariable("Path", $env:Path + ";" + $windowsSdkPath, [EnvironmentVariableTarget]::Machine)
       
 
-    - name: Replace DirectShow with Media Foundatio
+    - name: Set OBS Version and Replace DirectShow with Media Foundation
       run: |
-              cd /a/
-              pwd
-       
-        
-              Get-ChildItem -Path obs-studio/plugins -Recurse -Include *.cpp, *.c, *.h |
-              ForEach-Object {
-                (Get-Content $_.FullName) -replace 'DirectShow', 'MediaFoundation' | Set-Content $_.FullName
-               }
-
-    - name: Set OBS Version to prevent CMake errors
-      run: |
-        cd obs-studio
-        echo 'set(OBS_CMAKE_VERSION "3.0.0")' >> CMakeLists.txt
+           cd obs-studio
+           echo 'set(OBS_CMAKE_VERSION "3.0.0")' >> CMakeLists.txt
+           # Make sure to list the correct path after 'cd' command
+           Get-ChildItem -Path ./plugins -Recurse -Include *.cpp, *.c, *.h |
+           ForEach-Object {
+            (Get-Content $_.FullName) -replace 'DirectShow', 'MediaFoundation' | Set-Content $_.FullName
+           }
 
     - name: Set up MSVC (Visual Studio 2019)
       uses: ilammy/msvc-dev-cmd@v1
