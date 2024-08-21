@@ -79,9 +79,9 @@ jobs:
 
     - name: Configure OBS Studio with Media Foundation support for Windows 64-bit
       run: |
-       cd obs-studio
-       mkdir build
-       cd build
+       
+       mkdir /a/obs-studio/obs-studio/obs-studio/build
+       cd /a/obs-studio/obs-studio/obs-studio/build
        cmake -G "Ninja" ^
           -A x64 ^
           -DCMAKE_BUILD_TYPE="${{ matrix.configuration }}" ^
@@ -92,4 +92,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: obs-build-${{ matrix.configuration }}
-        path: obs-studio/build/bin/Release/
+        path: /a/obs-studio/obs-studio/obs-studio/build/bin/Release/
