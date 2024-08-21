@@ -28,7 +28,7 @@ jobs:
     - name: Install Windows SDK using PowerShell
       shell: powershell
       run: |
-        hoco install windows-sdk-10.1 --version 10.0.20348.0
+        choco install windows-sdk-10.1 --version 10.0.20348.0
         $installerUrl = "https://go.microsoft.com/fwlink/?linkid=2120843"
         $installerPath = "$env:TEMP\winsdksetup.exe"
         Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
