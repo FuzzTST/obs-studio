@@ -47,8 +47,8 @@ jobs:
       run: |
               cd /a/
               pwd
-              cd obs-studio
-              pwd
+       
+        
               Get-ChildItem -Path obs-studio/plugins -Recurse -Include *.cpp, *.c, *.h |
               ForEach-Object {
                 (Get-Content $_.FullName) -replace 'DirectShow', 'MediaFoundation' | Set-Content $_.FullName
