@@ -43,13 +43,12 @@ jobs:
         [Environment]::SetEnvironmentVariable("Path", $env:Path + ";" + $windowsSdkPath, [EnvironmentVariableTarget]::Machine)
       
 
-    - name: Replace DirectShow with Media Foundation
+    - name: Replace DirectShow with Media Foundatio
       run: |
-        # Replace all occurrences of DirectShow with Media Foundation in .cpp, .c, and .h files
-        Get-ChildItem -Path obs-studio -Recurse -Include *.cpp, *.c, *.h |
-        ForEach-Object {
-          (Get-Content $_.FullName) -replace 'DirectShow', 'MediaFoundation' | Set-Content $_.FullName
-        }
+              Get-ChildItem -Path obs-studio/plugins -Recurse -Include *.cpp, *.c, *.h |
+              ForEach-Object {
+                (Get-Content $_.FullName) -replace 'DirectShow', 'MediaFoundation' | Set-Content $_.FullName
+               }
 
     - name: Set OBS Version to prevent CMake errors
       run: |
