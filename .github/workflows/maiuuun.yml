@@ -1,0 +1,101 @@
+name: Build OBS Studio with Media Foundation on Windows
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build OBS Studio with Media Foundation
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        configuration: [Release, Debug]
+
+    steps:
+    - name: Install Chocolatey
+      run: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force; \
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; \
+        iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+    - name: Install dependencies using Chocolatey
+      run: |
+        choco install cmake --installargs '"ADD_CMAKE_TO_PATH=System"'
+        choco install git
+        choco install ninja
+        choco install 7zip
+
+    - name: Checkout OBS Studio repository
+      uses: actions/checkout@v2
+      with:
+        repository: obsproject/obs-studio
+        path: obs-studio
+
+    - name: Checkout Media Foundation repository
+      run: |
+        git clone https://github.com/microsoft/media-foundation.git media-foundation
+        cd media-foundation
+        git submodule update --init --recursive
+
+    - name: Verify structure and locate win-capture.cpp
+      run: |
+        cd obs-studio
+        if (-not (Test-Path './plugins/video_capture/windows/win-capture.cpp')) {
+          Write-Host "win-capture.cpp not found. Searching in the repository..."
+          $result = Get-ChildItem -Recurse -Filter 'win-capture.cpp' | Select-Object -First 1
+          if ($result -eq $null) {
+            Write-Host "Error: win-capture.cpp not found."
+            exit 1
+          } else {
+            Write-Host "win-capture.cpp found at: $($result.FullName)"
+          }
+        }
+
+    - name: Modify OBS Studio to use Media Foundation
+      run: |
+        cd obs-studio
+        $winCapturePath = Get-ChildItem -Recurse -Filter 'win-capture.cpp' | Select-Object -First 1
+        if ($winCapturePath -ne $null) {
+          $path = $winCapturePath.FullName
+          Write-Host "Modifying: $path"
+          sed -i 's/DirectShow/MediaFoundation/g' $path
+          sed -i 's/DirectShowFilter/MediaFoundationFilter/g' $path
+        } else {
+          Write-Host "Error: win-capture.cpp file not found"
+          exit 1
+        }
+
+    - name: Set OBS Version to prevent CMake errors
+      run: |
+        cd obs-studio
+        echo 'set(OBS_CMAKE_VERSION "3.0.0")' >> CMakeLists.txt
+
+    - name: Set up MSVC (Visual Studio 2019)
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+
+    - name: Configure OBS Studio with Media Foundation support
+      run: |
+        cd obs-studio
+        mkdir build
+        cd build
+        cmake -G "Ninja" -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} -DENABLE_MEDIA_FOUNDATION=ON -DBUILD_WIN=ON ..
+
+    - name: Build OBS Studio
+      run: |
+        cd obs-studio/build
+        ninja
+
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: obs-build-${{ matrix.configuration }}
+        path: obs-studio/build/bin/Release/
