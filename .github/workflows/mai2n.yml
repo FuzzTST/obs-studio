@@ -80,7 +80,7 @@ jobs:
     - name: Configure OBS Studio with Media Foundation support for Windows 64-bit
       run: |
        cd obs-studio
-       if not exist build mkdir build
+       mkdir build
        cd build
        cmake -G "Ninja" ^
           -A x64 ^
