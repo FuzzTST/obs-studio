@@ -42,8 +42,9 @@ jobs:
 
     - name: Configure OBS Studio with CMake Presets
       run: |
+       cd /
        cd obs-studio
-       cmake --preset windows-release
+       cmake --preset windows-x64
     - name: Checkout OBS Studio repository
       uses: actions/checkout@v2
       with:
