@@ -45,7 +45,7 @@ jobs:
 
     - name: Set OBS Version and Replace DirectShow with Media Foundation
       run: |
-           
+           cd ..
            echo 'set(OBS_CMAKE_VERSION "3.0.0")' >> CMakeLists.txt
            # Make sure to list the correct path after 'cd' command
            Get-ChildItem -Path ./plugins -Recurse -Include *.cpp, *.c, *.h |
