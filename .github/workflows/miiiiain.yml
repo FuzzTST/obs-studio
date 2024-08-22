@@ -62,7 +62,7 @@ jobs:
 
     - name: Configure OBS Studio submodules
       run: |
-        cd C:\obs-studio
+        cd C:\a\obs-studio
         git submodule update --init --recursive
         
     - name: Replace DirectShow with Media Foundation in OBS Studio codebase
@@ -84,7 +84,7 @@ jobs:
 
     - name: Configure OBS Studio with Media Foundation support for Windows 64-bit
       run: |
-        cd C:\obs-studio
+        cd C:\a\obs-studio
         mkdir build
         cd build
         
@@ -92,12 +92,12 @@ jobs:
 
     - name: Build OBS Studio
       run: |
-        cd C:\obs-studio\build
+        cd C:\a\obs-studio\build
         ninja
 
     - name: Archive build artifacts
       uses: actions/upload-artifact@v2
       with:
         name: obs-build-${{ matrix.configuration }}
-        path: C:\obs-studio\build\bin\Release\
+        path: C:\a\obs-studio\build\bin\Release\
         
