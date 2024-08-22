@@ -84,6 +84,7 @@ jobs:
        
        mkdir /a/obs-studio/obs-studio/obs-studio/build
        cd /a/obs-studio/obs-studio/obs-studio/build
+       cmake --preset default
        cmake -G "Ninja" -DCMAKE_BUILD_TYPE="Release" -DENABLE_MEDIA_FOUNDATION=ON -DBUILD_WIN=ON ..
 
 
