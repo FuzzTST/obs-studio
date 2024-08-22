@@ -62,13 +62,13 @@ jobs:
 
     - name: Configure OBS Studio submodules
       run: |
-        cd C:\a\obs-studio
+        cd D:\a\obs-studio\obs-studio\obs-studio
         git submodule update --init --recursive
         
     - name: Replace DirectShow with Media Foundation in OBS Studio codebase
       run: |
         # Replace DirectShow with Media Foundation in .cpp, .c, and .h files
-        Get-ChildItem -Path C:\obs-studio -Recurse -Include *.cpp, *.c, *.h |
+        Get-ChildItem -Path D:\a\obs-studio\obs-studio\obs-studio -Recurse -Include *.cpp, *.c, *.h |
         ForEach-Object {
           (Get-Content $_.FullName) -replace 'DirectShow', 'MediaFoundation' | Set-Content $_.FullName
         }
@@ -84,7 +84,7 @@ jobs:
 
     - name: Configure OBS Studio with Media Foundation support for Windows 64-bit
       run: |
-        cd C:\a\obs-studio
+        cd D:\a\obs-studio\obs-studio\obs-studio
         mkdir build
         cd build
         
