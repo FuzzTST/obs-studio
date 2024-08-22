@@ -45,6 +45,16 @@ jobs:
         $windowsSdkPath = "C:\Program Files (x86)\Windows Kits\10\bin\x64"
         [Environment]::SetEnvironmentVariable("Path", $env:Path + ";" + $windowsSdkPath, [EnvironmentVariableTarget]::Machine)
         
+    - name: Install Qt
+      run: |
+        choco install qt5-sdk -y
+        
+    - name: Install additional dependencies
+      run: |
+        choco install ffmpeg -y
+        choco install openssl -y
+        choco install zlib -y
+        
     - name: Checkout Media Foundation repository
       run: |
         git clone https://github.com/microsoft/media-foundation.git media-foundation
@@ -92,12 +102,11 @@ jobs:
 
     - name: Build OBS Studio
       run: |
-        cd C:\a\obs-studio\build
+        cd D:\a\obs-studio\obs-studio\obs-studio\build
         ninja
 
     - name: Archive build artifacts
       uses: actions/upload-artifact@v2
       with:
         name: obs-build-${{ matrix.configuration }}
-        path: C:\a\obs-studio\build\bin\Release\
-        
+        path: D:\a\obs-studio\obs-studio\obs-studio\build\bin\Release\
