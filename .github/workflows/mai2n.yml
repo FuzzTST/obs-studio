@@ -81,10 +81,11 @@ jobs:
 
     - name: Configure OBS Studio with Media Foundation support for Windows 64-bit
       run: |
-       
+       git submodule update --init --recursive
+       cmake --preset windows-x64
        mkdir /a/obs-studio/obs-studio/obs-studio/build
        cd /a/obs-studio/obs-studio/obs-studio/build
-       cmake --preset default
+       
        cmake -G "Ninja" -DCMAKE_BUILD_TYPE="Release" -DENABLE_MEDIA_FOUNDATION=ON -DBUILD_WIN=ON ..
 
 
