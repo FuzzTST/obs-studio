@@ -75,7 +75,7 @@ jobs:
         
     - name: Set OBS Version to prevent CMake errors
       run: |
-        echo 'set(OBS_CMAKE_VERSION "3.0.0")' >> C:\obs-studio\CMakeLists.txt
+        echo 'set(OBS_CMAKE_VERSION "3.0.0")' >> D:\a\obs-studio\obs-studio\obs-studio\CMakeLists.txt
 
     - name: Set up MSVC (Visual Studio 2019)
       uses: ilammy/msvc-dev-cmd@v1
