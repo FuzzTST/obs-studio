@@ -84,7 +84,8 @@ jobs:
        
        mkdir /a/obs-studio/obs-studio/obs-studio/build
        cd /a/obs-studio/obs-studio/obs-studio/build
-       cmake -G "Ninja" -A x64 -DCMAKE_BUILD_TYPE="Release" -DENABLE_MEDIA_FOUNDATION=ON -DBUILD_WIN=ON ..
+       cmake -G "Ninja" -DCMAKE_BUILD_TYPE="Release" -DENABLE_MEDIA_FOUNDATION=ON -DBUILD_WIN=ON ..
+
 
     
     - name: Archive build artifacts
