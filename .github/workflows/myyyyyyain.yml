@@ -64,13 +64,39 @@ jobs:
         mkdir D:\\a\\obs-studio\\obs-studio\\obs-studio\\build
         cd D:\\a\\obs-studio\\obs-studio\\obs-studio\\build
         cmake -G "Ninja" -DCMAKE_BUILD_TYPE="Release" -DENABLE_MEDIA_FOUNDATION=ON -DBUILD_WIN=ON ..
+    - name: Install Windows SDK
+      shell: powershell
+      run: |
+        $installerUrl = "https://go.microsoft.com/fwlink/?linkid=2120843"
+        $installerPath = "$env:TEMP\\winsdksetup.exe"
+        Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
+        Start-Process -FilePath $installerPath -ArgumentList "/quiet /norestart" -Wait
+
+    - name: Install dependencies
+      run: |
+        choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --includeOptional"
+        choco install ninja
+
+    - name: Set SDK environment variable
+      run: |
+        setx CMAKE_PREFIX_PATH "C:\\Program Files (x86)\\Windows Kits\\10"
+
+    - name: Configure OBS Studio with CMake
+      run: |
+        mkdir D:\\a\\obs-studio\\obs-studio\\obs-studio\\build
+        cd D:\\a\\obs-studio\\obs-studio\\obs-studio\\build
+        cmake -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DENABLE_MEDIA_FOUNDATION=ON -DBUILD_WIN=ON ..
 
     - name: Build OBS Studio
-      run: |
-        cmake --build D:\\a\\obs-studio\\obs-studio\\obs-studio\\build --config Release
+      run: cmake --build D:\\a\\obs-studio\\obs-studio\\obs-studio\\build --config Release
 
     - name: Archive build artifacts
       uses: actions/upload-artifact@v2
       with:
         name: obs-build-${{ matrix.configuration }}
         path: D:\\a\\obs-studio\\obs-studio\\obs-studio\\build\\bin\\Release\\
+    - name: Build OBS Studio
+      run: |
+        cmake --build D:\\a\\obs-studio\\obs-studio\\obs-studio\\build --config Release
+
+    
